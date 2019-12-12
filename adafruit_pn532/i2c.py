@@ -76,17 +76,17 @@ class PN532_I2C(PN532):
         """Poll PN532 if status byte is ready, up to `timeout` seconds"""
         status = bytearray(1)
         timestamp = time.monotonic()
-        while (time.monotonic() - timestamp) < timeout:
-            try:
-                with self._i2c:
+        with self._i2c:
+            while (time.monotonic() - timestamp) < timeout:
+                try:        
                     self._i2c.readinto(status)
-            except OSError:
-                self._wakeup()
-                continue
-            if status == b'\x01':
-                return True  # No longer busy
-            else:
-                time.sleep(0.05)  # lets ask again soon!
+                except OSError:
+                    self._wakeup()
+                    continue
+                if status == b'\x01':
+                    return True  # No longer busy
+                else:
+                    time.sleep(0.01)  # lets ask again soon!
         # Timed out!
         return False
 
